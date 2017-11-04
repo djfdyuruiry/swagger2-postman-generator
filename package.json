@@ -1,10 +1,10 @@
 {
   "name": "swagger2-postman-generator",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Use Swagger v2 JSON Collections to generate Postman v1 collections which include sample request bodies",
   "main": "swagger2-postman-generator.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./example/example.sh"
   },
   "repository": {
     "type": "git",
