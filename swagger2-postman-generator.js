@@ -1,8 +1,11 @@
 var fs = require("fs")
+var request = require("sync-request")
+
 var Swagger2Postman = require("swagger2-to-postman");
 var Swagger2Object = require("swagger2-to-object"); 
 
-var convertSwaggerRoot = require("./convertSwaggerRoot.js");
+const ignoredVariables = ["scheme", "host", "port"];
+const environmentFile = "./postman_environment.json";
 
 /* postman collection post-processing */
 function populateRequestJsonIfDefined (postmanRequest, swaggerSpec, swaggerRefsLookup) {
@@ -96,6 +99,72 @@ function convertSwaggerToPostmanJson (swaggerSpec, options) {
     }
 }
 
+/* swagger to postman environment conversions */
+function buildEnvironmentVariable (name, value = "", type = "text", enabled = true) {
+    return {
+        key: name,
+        value: value,
+        type: type,
+        enabled: enabled
+    }
+}
+
+function convertSwaggerToPostmanEnvironment (swaggerSpec, options) {  
+    var environmentJson = fs.readFileSync(environmentFile);
+    var environment = JSON.parse(environmentJson);
+    
+    var postmanCollectionJson = convertSwaggerToPostmanJson(swaggerSpec, options);
+    var uniqueVariables = [...new Set(postmanCollectionJson.match(/\{\{.+\}\}/g))];
+
+    var uniqueVariableDictionary = {}
+
+    if (options && options.name) {
+        environment.name = `${name}`
+    }
+
+    uniqueVariables.forEach((v) => {
+        if (v === "{{scheme}}://{{host}}:{{port}}") {
+            return;
+        }
+
+        var sanitisedValue = v.replace(/[{}]/g, "");
+        var environmentVariable = buildEnvironmentVariable(v, sanitisedValue);
+        
+        environment.values.push(environmentVariable)
+
+        uniqueVariableDictionary[v] = true;
+    });
+
+    if (!options || !options.customVariables || options.customVariables.length < 1) {
+        return environment;
+    }
+
+    options.customVariables.forEach((cv) => {
+        var variableName = cv.name;
+
+        if (uniqueVariableDictionary[variableName]) {
+            return;
+        }
+
+        var environmentVariable = 
+        buildEnvironmentVariable(variableName, cv.value, cv.type, cv.enabled);
+
+        environment.values.push(environmentVariable);
+    });
+
+    return environment;
+}
+
+function convertSwaggerToPostmanEnvironmentJson (swaggerSpec, options) {
+    var postmanEnvironment = convertSwaggerToPostmanEnvironment(swaggerSpec, options);
+
+    if (options && options.prettyPrint) {
+        return JSON.stringify(postmanEnvironment, null, 4);
+    } else {
+        return JSON.stringify(postmanEnvironment);
+    }
+}
+
 /* module function chain */
 function convertSwagger (swaggerSpec, convertSwaggerOptions) {
     return { 
@@ -122,13 +191,60 @@ function convertSwagger (swaggerSpec, convertSwaggerOptions) {
             var response = request("POST", url, { json: postJson })
             
             return response;
+        },
+        toPostmanEnvironment: (options) => convertSwaggerToPostmanEnvironment(swaggerSpec, options),
+        toPostmanEnvironmentJson: (options) => convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options),
+        toPostmanEnvironmentFile: (postmanEnvironmentFilename, options) => {
+            console.log(`Saving Postman Collection to file...`);
+
+            var postmanCollectionJson = convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options);
+
+            fs.writeFileSync(postmanEnvironmentFilename, postmanCollectionJson); 
+
+            console.log(`Saved Postman Collection to file ${postmanEnvironmentFilename}`)
+        },
+        toPostmanEnvironmentPost: (url, options) => {
+            var postmanEnvironmentJson = convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options);
+            var postJson = postmanEnvironmentJson;
+
+            if (options && options.postJsonBuilder && 
+                (typeof options.postJsonBuilder) === "function") {
+                postJson = options.postJsonBuilder(postmanEnvironmentJson);
+            }
+
+            var response = request("POST", url, { json: postJson })
+            
+            return response;
         }
     }
 }
 
+function convertSwaggerJson (swaggerJson, convertSwagger, options) {
+    console.log(`Parsing Swagger spec JSON...`);
 
+    var swaggerSpec = JSON.parse(swaggerJson);
+    return convertSwagger(swaggerSpec, options);
+}
 
 /* module export */
 module.exports = {
-    convertSwagger: () => convertSwaggerRoot(convertSwagger)
+    convertSwagger: () => ({ 
+        fromUrl: (url, options) => {
+            console.log(`Reading Swagger spec from URL: ${url}...`);
+
+            var response = request("GET", url);
+            var swaggerJson = response.getBody();
+
+            return convertSwaggerJson(swaggerJson, convertSwagger, options);
+        },
+        fromFile: (filePath, options) => {
+            console.log(`Reading Swagger spec from file: ${filePath}...`);
+
+            var swaggerJson = fs.readFileSync(filePath);
+
+            return convertSwaggerJson(swaggerJson, convertSwagger, options);
+        },
+        fromJson: (swaggerSpecJson, options) => convertSwaggerJson(swaggerJson, convertSwagger, options),
+        fromSpec: (swaggerSpec, options) => convertSwagger(swaggerSpec, options)
+    })
 };

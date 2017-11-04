@@ -1,6 +1,6 @@
 # swagger2-postman-generator #
 
-A simple interface for converting Swagger v2 JSON Specs to a Postman Collection, with any declared Swagger request bodies added as JSON to request bodies.
+A simple interface for converting Swagger v2 JSON Specs to a Postman Collection, with samples of Swagger request models added as JSON request bodies.
 
 Based on the [swagger2-to-postman](https://github.com/postmanlabs/swagger2-to-postman) NPM package and [Swagger UI](https://github.com/swagger-api/swagger-ui) JSON example request generator.
 
@@ -120,7 +120,31 @@ var swaggerSpec = getSwaggerSpecFromSomewhere(); // example
 Swagger2Postman
     .convertSwagger()
     .fromSpec(swaggerSpec)
-    .toPostmanCollectionPost("http://localhost/addCollection")
+    .toPostmanCollectionPost("https://some.web.service/api/postman/collections")
+```
+
+**Export Postman Environment**
+
+You can export a auto-generated Postman Environment JSON that contains the host, port, scheme and all the distinct parameters found in the Swagger spec.
+
+``` javascript
+var swagger2Postman = Swagger2Postman
+    .convertSwagger()
+    .fromJson('{"swagger":"2.0",...')
+    
+var options = getOptionsFromSomewhere(); // options for postman collection and environment
+
+var env = swagger2Postman
+    .toPostmanEnvironment(options)
+
+var json = swagger2Postman
+    .toPostmanEnvironmentJson(options)
+
+swagger2Postman
+    .toPostmanEnvironmentFile("env.json", options)
+
+swagger2Postman
+    .toPostmanEnvironmentPost("https://some.web.service/api/postman/environments", options)
 ```
 
 ---
@@ -218,7 +242,7 @@ Swagger2Postman
     })
 ```
 
-- **```postJsonBuilder```**: a function that receives the postman collection as JSON and returns a custom JSON string to use as the POST body (only for ```toPostmanCollectionPost```)
+- **```postJsonBuilder```**: a function that receives the postman collection as JSON and returns a custom JSON string to use as the POST body (only for ```toPostmanCollectionPost``` and ```toPostmanEnvironmentPost```)
 
 ``` javascript
 Swagger2Postman
@@ -245,3 +269,39 @@ Swagger2Postman
         prettyPrint: true
     })
 ```
+### Options for Postman Environments ###
+
+*These options only apply when calling ```toPostmanEnvironment[Json|File|Post]``` functions.*
+
+- **```environment.name```**: the name of the Environment shown in Postman UI
+
+``` javascript
+Swagger2Postman
+    .convertSwagger()
+    .fromFile("swagger.json")
+    .toPostmanEnvironment({
+        environment: {
+            name = "Environment Name"
+        }
+    })
+```
+
+- **```environment.customVariables```**: list of custom variables to add to Environment
+
+``` javascript
+Swagger2Postman
+    .convertSwagger()
+    .fromFile("swagger.json")
+    .toPostmanEnvironment({
+        environment: {
+            customVariables = [{ // list of custom variables to add
+                name = "accessCode",
+                value = "9283928", // optional, default is name field value
+                enabled = true, // optional, default is true (shows as check box in Postman UI)
+                type = "text" // optional, default is text
+            }]
+        }
+    })
+```
+
+    
