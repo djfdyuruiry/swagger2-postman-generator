@@ -1,0 +1,29 @@
+{
+  "name": "swagger2-postman-generator",
+  "version": "2.0.0",
+  "description": "Use Swagger v2 JSON Collections to generate Postman v1 collections which include sample request bodies",
+  "main": "swagger2-postman-generator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djfdyuruiry/swagger2-postman-generator.git"
+  },
+  "keywords": [
+    "swagger",
+    "swagger-ui"
+  ],
+  "author": "djfdyuruiry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/djfdyuruiry/swagger2-postman-generator/issues"
+  },
+  "homepage": "https://github.com/djfdyuruiry/swagger2-postman-generator#readme",
+  "dependencies": {
+    "swagger2-to-json": "^1.0.4",
+    "swagger2-to-object": "^1.0.4",
+    "swagger2-to-postman": "^1.1.7",
+    "sync-request": "^4.1.0"
+  }
+}
