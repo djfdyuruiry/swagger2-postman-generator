@@ -9,7 +9,8 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/example/generatePostmanCollection.js"
+            "program": "${workspaceFolder}/example/generatePostmanCollection.sh",
+            "cwd": "${workspaceFolder}/example/"
         }
     ]
 }

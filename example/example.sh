@@ -1,4 +1,2 @@
-cd ..
-npm install
-cd example
+npm install swagger2-postman-generator
 node ./generatePostman.js

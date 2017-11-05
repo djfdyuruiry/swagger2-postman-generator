@@ -1,4 +1,4 @@
-var Swagger2Postman = require("../swagger2-postman-generator.js");
+var Swagger2Postman = require("swagger2-postman-generator");
 
 var url = "http://generator.swagger.io/api/swagger.json"
 

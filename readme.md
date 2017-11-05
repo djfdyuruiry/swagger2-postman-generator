@@ -296,7 +296,7 @@ Swagger2Postman
         environment: {
             customVariables = [{ // list of custom variables to add
                 name = "accessCode",
-                value = "9283928", // optional, default is name field value
+                value = "9283928", // optional, default is blank string
                 enabled = true, // optional, default is true (shows as check box in Postman UI)
                 type = "text" // optional, default is text
             }]

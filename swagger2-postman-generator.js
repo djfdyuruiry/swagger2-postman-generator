@@ -1,11 +1,12 @@
-var fs = require("fs")
-var request = require("sync-request")
+const fs = require("fs")
+const request = require("sync-request")
 
-var Swagger2Postman = require("swagger2-to-postman");
-var Swagger2Object = require("swagger2-to-object"); 
+const Swagger2Postman = require("swagger2-to-postman");
+const Swagger2Object = require("swagger2-to-object"); 
+
+const buildPostmanEnvironment = require("./buildPostmanEnvironment.js")
 
 const ignoredVariables = ["scheme", "host", "port"];
-const environmentFile = "./postman_environment.json";
 
 /* postman collection post-processing */
 function populateRequestJsonIfDefined (postmanRequest, swaggerSpec, swaggerRefsLookup) {
@@ -110,46 +111,53 @@ function buildEnvironmentVariable (name, value = "", type = "text", enabled = tr
 }
 
 function convertSwaggerToPostmanEnvironment (swaggerSpec, options) {  
-    var environmentJson = fs.readFileSync(environmentFile);
-    var environment = JSON.parse(environmentJson);
-    
+    var environment = buildPostmanEnvironment();
     var postmanCollectionJson = convertSwaggerToPostmanJson(swaggerSpec, options);
-    var uniqueVariables = [...new Set(postmanCollectionJson.match(/\{\{.+\}\}/g))];
+    var uniqueVariables = [...new Set(postmanCollectionJson.match(/\{\{.+?\}\}/g))];
 
-    var uniqueVariableDictionary = {}
-
-    if (options && options.name) {
-        environment.name = `${name}`
+    if (options && options.environment && options.environment.name) {
+        environment.name = `${options.environment.name}`
     }
 
+    var environmentVariables = environment.values;
+    var uniqueVariableDictionary = {}
+
     uniqueVariables.forEach((v) => {
-        if (v === "{{scheme}}://{{host}}:{{port}}") {
+        var sanitisedVariableName = v.replace(/^{{|}}$/gm, "");
+        uniqueVariableDictionary[sanitisedVariableName] = true;
+
+        if (ignoredVariables.includes(sanitisedVariableName)) {
             return;
         }
 
-        var sanitisedValue = v.replace(/[{}]/g, "");
-        var environmentVariable = buildEnvironmentVariable(v, sanitisedValue);
-        
-        environment.values.push(environmentVariable)
-
-        uniqueVariableDictionary[v] = true;
+        var environmentVariable = buildEnvironmentVariable(sanitisedVariableName);
+        environmentVariables.push(environmentVariable)
     });
 
-    if (!options || !options.customVariables || options.customVariables.length < 1) {
+    if (!options ||
+        !options.environment ||
+        !options.environment.customVariables ||
+        options.environment.customVariables.length < 1) {
         return environment;
     }
 
-    options.customVariables.forEach((cv) => {
-        var variableName = cv.name;
+    options.environment.customVariables.forEach((cv) => {
+        var variableName = cv.key;
+        var environmentVariable = 
+            buildEnvironmentVariable(variableName, cv.value, cv.type, cv.enabled);
 
         if (uniqueVariableDictionary[variableName]) {
-            return;
+            // remove generated variable to prepare for custom one
+            var i = environmentVariables.length;
+
+            while (i--) {
+                if (environmentVariables[i].key === variableName) {
+                    environmentVariables.splice(i, 1);
+                }
+            }
         }
 
-        var environmentVariable = 
-        buildEnvironmentVariable(variableName, cv.value, cv.type, cv.enabled);
-
-        environment.values.push(environmentVariable);
+        environmentVariables.push(environmentVariable);
     });
 
     return environment;
