@@ -7,8 +7,14 @@ Based on the [swagger2-to-postman](https://github.com/postmanlabs/swagger2-to-po
 Features:
 
 - Import Swagger Spec direct from URL, JSON file, raw JSON string and JavaScript object 
+
 - Export Postman Collection to JavaScript object, raw JSON, JSON file or via a HTTP POST
-- Base URLs for endpoints are made generic with Postman environment placeholders for scheme (HTTP/HTTPS), host (some.website.com) and port (8080), a template Postman environment is available in ```postman_environment.json``` - http://some.website.com/api/do/stuff becomes {{scheme}}://{{host}}:{{port}}/api/do/stuff
+
+- Export Postman Environment with all URL parameters and other variables - can be exported to JavaScript object, raw JSON, JSON file or via a HTTP POST
+
+- Base URLs for endpoints are made generic with Postman environment placeholders for scheme (HTTP/HTTPS), host (some.website.com) and port (8080) -> http://some.website.com/api/do/stuff becomes {{scheme}}://{{host}}:{{port}}/api/do/stuff 
+
+*Base URL parameters are included in any generated postman envrionment file*
 
 NPM Package: https://www.npmjs.com/package/swagger2-postman-generator
 GitHub: https://github.com/djfdyuruiry/swagger2-postman-generator
