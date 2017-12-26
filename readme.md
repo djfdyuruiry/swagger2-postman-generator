@@ -161,6 +161,9 @@ You can pass an options object to the ```from``` and ```to``` functions as the l
 
 Note when dealing with a Postman request body, URL or headers you can use the environment variable syntax to add placeholders; e.g. ```token: {{tokenVariable}}```
 
+**```from``` and ```to``` options**
+- ```debug```: set this flag to ```true``` to turn on console logging of library calls, for debugging purposes only 
+
 **```to``` function options**
 
 - ```requestPreProcessor```: function that receives the postman request and swagger spec, called before request URL and body are processed

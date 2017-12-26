@@ -179,13 +179,17 @@ function convertSwagger (swaggerSpec, convertSwaggerOptions) {
         toPostmanCollection: (options) => convertSwaggerToPostman(swaggerSpec, options),
         toPostmanCollectionJson: (options) => convertSwaggerToPostmanJson(swaggerSpec, options),
         toPostmanCollectionFile: (postmanCollectionFilename, options) => {
-            console.log(`Saving Postman Collection to file...`);
+            if (options && options.debug) {
+                console.log(`Saving Postman Collection to file...`);
+            }
 
             var postmanCollectionJson = convertSwaggerToPostmanJson(swaggerSpec, options);
 
             fs.writeFileSync(postmanCollectionFilename, postmanCollectionJson); 
 
-            console.log(`Saved Postman Collection to file ${postmanCollectionFilename}`)
+            if (options && options.debug) {
+                console.log(`Saved Postman Collection to file ${postmanCollectionFilename}`)
+            }
         },
         toPostmanCollectionPost: (url, options) => {
             var postmanCollectionJson = convertSwaggerToPostmanJson(swaggerSpec, options);
@@ -203,13 +207,17 @@ function convertSwagger (swaggerSpec, convertSwaggerOptions) {
         toPostmanEnvironment: (options) => convertSwaggerToPostmanEnvironment(swaggerSpec, options),
         toPostmanEnvironmentJson: (options) => convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options),
         toPostmanEnvironmentFile: (postmanEnvironmentFilename, options) => {
-            console.log(`Saving Postman Collection to file...`);
+            if (options && options.debug) {
+                console.log(`Saving Postman Collection to file...`);
+            }
 
             var postmanCollectionJson = convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options);
 
             fs.writeFileSync(postmanEnvironmentFilename, postmanCollectionJson); 
 
-            console.log(`Saved Postman Collection to file ${postmanEnvironmentFilename}`)
+            if (options && options.debug) {
+                console.log(`Saved Postman Collection to file ${postmanEnvironmentFilename}`)
+            }
         },
         toPostmanEnvironmentPost: (url, options) => {
             var postmanEnvironmentJson = convertSwaggerToPostmanEnvironmentJson(swaggerSpec, options);
@@ -228,7 +236,9 @@ function convertSwagger (swaggerSpec, convertSwaggerOptions) {
 }
 
 function convertSwaggerJson (swaggerJson, convertSwagger, options) {
-    console.log(`Parsing Swagger spec JSON...`);
+    if (options && options.debug) {
+        console.log(`Parsing Swagger spec JSON...`);
+    }
 
     var swaggerSpec = JSON.parse(swaggerJson);
     return convertSwagger(swaggerSpec, options);
@@ -238,7 +248,9 @@ function convertSwaggerJson (swaggerJson, convertSwagger, options) {
 module.exports = {
     convertSwagger: () => ({ 
         fromUrl: (url, options) => {
-            console.log(`Reading Swagger spec from URL: ${url}...`);
+            if (options && options.debug) {
+                console.log(`Reading Swagger spec from URL: ${url}...`);
+            }
 
             var response = request("GET", url);
             var swaggerJson = response.getBody();
@@ -246,7 +258,9 @@ module.exports = {
             return convertSwaggerJson(swaggerJson, convertSwagger, options);
         },
         fromFile: (filePath, options) => {
-            console.log(`Reading Swagger spec from file: ${filePath}...`);
+            if (options && options.debug) {
+                console.log(`Reading Swagger spec from file: ${filePath}...`);
+            }
 
             var swaggerJson = fs.readFileSync(filePath);
 
