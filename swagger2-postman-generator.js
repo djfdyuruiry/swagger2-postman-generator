@@ -266,7 +266,7 @@ module.exports = {
 
             return convertSwaggerJson(swaggerJson, convertSwagger, options);
         },
-        fromJson: (swaggerSpecJson, options) => convertSwaggerJson(swaggerJson, convertSwagger, options),
+        fromJson: (swaggerJson, options) => convertSwaggerJson(swaggerJson, convertSwagger, options),
         fromSpec: (swaggerSpec, options) => convertSwagger(swaggerSpec, options)
     })
 };
