@@ -50,7 +50,7 @@ function processPostmanCollection (postmanCollection, swaggerSpec, options) {
         }
     
         request.url = request.url.replace(/[hH][tT][tT][pP][sS]{0,1}:\/\//,  "{{scheme}}://");
-        request.url = request.url.replace(/:\/\/.+?\//,  "://{{host}}:{{port}}/");
+        request.url = request.url.replace(/:\/\/[^/]*/,  "://{{host}}:{{port}}");
 
         populateRequestJsonIfDefined(request, swaggerSpec, swaggerRefsLookup, options);
 
