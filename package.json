@@ -4,7 +4,7 @@
   "description": "Use Swagger v2 JSON Collections to generate Postman v1 collections which include sample request bodies",
   "main": "swagger2-postman-generator.js",
   "scripts": {
-    "test": "./example/example.sh"
+    "test": "cd ./example && node ./generatePostman.js"
   },
   "repository": {
     "type": "git",

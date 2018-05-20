@@ -1,1 +1,0 @@
-Example of how to use this package, see ```generatePostmanCollection.js``` for details. To run this example you only need to run ```example.sh```.
