@@ -24,6 +24,6 @@
     "swagger2-to-json": "^1.1.1",
     "swagger2-to-object": "^1.0.9",
     "swagger2-to-postman": "^1.1.9",
-    "sync-request": "^4.1.0"
+    "sync-request": "^6.1.0"
   }
 }
