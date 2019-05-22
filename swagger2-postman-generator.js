@@ -15,7 +15,9 @@ function populateRequestJsonIfDefined (postmanRequest, swaggerSpec, swaggerRefsL
 
     var relativePath = url.replace(`{{scheme}}://{{host}}:{{port}}${basePath}`, "")
     var swaggerPath = ((relativePath.replace(/\/:([a-zA-Z0-9]+)/, "/{$1}")).split("?"))[0]
-
+    if(swaggerPath[0] != '/') {
+        swaggerPath = '/' + swaggerPath;
+    }
     var swaggerPathRoot = swaggerSpec.paths[swaggerPath];
 
     if (!swaggerPathRoot) {
